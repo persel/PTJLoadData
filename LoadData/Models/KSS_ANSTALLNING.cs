@@ -102,5 +102,7 @@ namespace LoadData.Models
         public int? LONETILLAGG { get; set; }
 
         public decimal? TIMLON { get; set; }
+
+     
     }
 }

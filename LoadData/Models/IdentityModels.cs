@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System;
-using PTJ.DataLayer.Models;
 
 namespace LoadData.Models
 {
@@ -47,7 +46,7 @@ namespace LoadData.Models
         {
         }
 
-        public virtual DbSet<Person> Person { get; set; }
+        //public virtual DbSet<Person> Person { get; set; }
         //public virtual DbSet<TmpFiles> TmpFiles { get; set; }
 
         //protected override void OnModelCreating(DbModelBuilder modelBuilder)

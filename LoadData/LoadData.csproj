@@ -41,6 +41,10 @@
       <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>..\packages\Oracle.ManagedDataAccess.12.1.2400\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
       <Private>True</Private>
@@ -60,6 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LoadAvtal.cs" />
+    <Compile Include="DTOModel\AvtalInputDTO.cs" />
+    <Compile Include="DTOModel\OrganisationAvtalInputDTO.cs" />
+    <Compile Include="DTOModel\ResultatenhetInputDTO.cs" />
+    <Compile Include="LoadPerson.cs" />
+    <Compile Include="LoadResultatenhet.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\KSS_ADRESS.cs" />
     <Compile Include="Models\KSS_ADRTYP.cs" />
@@ -67,8 +77,7 @@
     <Compile Include="Models\KSS_ANSTALLNING.cs" />
     <Compile Include="Models\KSS_KONTAKT.cs" />
     <Compile Include="Models\KSS_KOSTNADSSTALLE.cs" />
-    <Compile Include="Models\Person.cs" />
-    <Compile Include="PersonViewModelSave.cs" />
+    <Compile Include="DTOModel\PersonInputDTO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
