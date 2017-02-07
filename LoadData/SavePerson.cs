@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -9,13 +11,13 @@ using LoadData.Models;
 
 namespace LoadData
 {
-    static class LoadPerson
+    static class SavePerson
     {
 
         public const string DateFormat = "yyyy-MM-dd";
         public const string DateTimeFormat = "yyyy-MM-dd HH:mm";
 
-        public static async void SendDataToPersonService(List<KSS_ANSTALLNING> persons)
+        public static async void SendDataToPersonService(IList<Anstallning> persons)
         {
             var stopWatch = new Stopwatch();
 
@@ -44,15 +46,13 @@ namespace LoadData
                 foreach (var p in personInputDtos)
                 {
                     var jsonInStringPerson = Newtonsoft.Json.JsonConvert.SerializeObject(p);
-
-                    var response = await client.PostAsync("http://localhost:57107/api/Person/person",
+                    var host = ConfigurationManager.AppSettings["ServiceHost"];
+                    var response = await client.PostAsync( host + "/api/Person/person",
                                                 new StringContent(jsonInStringPerson, Encoding.UTF8, "application/json"));
 
                     if (response.StatusCode.ToString() != "500")
                     {
-                        //Console.WriteLine("Sparat " + p.Personnummer + " " + p.Fornamn + " " + p.Efternamn);
-                        //Console.WriteLine(response.StatusCode.ToString());
-                        //Console.WriteLine("-----------------------");
+                    
                     }
                 }
             }
@@ -68,10 +68,13 @@ namespace LoadData
             Console.WriteLine("Time to save " + personDTOList.ToList().Count() + " persons " + elapsedTime);
             Console.WriteLine("End -- SendDataToPersonService");
 
+            SaveAdress.PersonAdressService(persons);
 
-            LoadResultatenhet.SendDataToResultatenhetService(persons);
+            SaveResultatenhet.SendDataToResultatenhetService(persons);
 
         }
+
+     
 
     }
 }

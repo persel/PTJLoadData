@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -55,6 +59,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -64,17 +69,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LoadAvtal.cs" />
+    <Compile Include="DTOModel\AdressInputDTO.cs" />
+    <Compile Include="LoadFromOracle.cs" />
+    <Compile Include="SaveAdress.cs" />
+    <Compile Include="SaveAvtal.cs" />
     <Compile Include="DTOModel\AvtalInputDTO.cs" />
     <Compile Include="DTOModel\OrganisationAvtalInputDTO.cs" />
     <Compile Include="DTOModel\ResultatenhetInputDTO.cs" />
-    <Compile Include="LoadPerson.cs" />
-    <Compile Include="LoadResultatenhet.cs" />
+    <Compile Include="SavePerson.cs" />
+    <Compile Include="SaveResultatenhet.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\KSS_ADRESS.cs" />
     <Compile Include="Models\KSS_ADRTYP.cs" />
     <Compile Include="Models\KSS_AFFOMR.cs" />
-    <Compile Include="Models\KSS_ANSTALLNING.cs" />
+    <Compile Include="Models\Anstallning.cs" />
     <Compile Include="Models\KSS_KONTAKT.cs" />
     <Compile Include="Models\KSS_KOSTNADSSTALLE.cs" />
     <Compile Include="DTOModel\PersonInputDTO.cs" />

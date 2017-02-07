@@ -1,46 +1,40 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using Dapper;
 using LoadData.DTOModel;
 using LoadData.Models;
+using Oracle.ManagedDataAccess.Client;
 
 namespace LoadData
 {
-    static class LoadResultatenhet
+    static class SaveResultatenhet
     {
 
         private const string DateFormat = "yyyy-MM-dd";
         private const string DateTimeFormat = "yyyy-MM-dd HH:mm";
-        public static async void SendDataToResultatenhetService(List<KSS_ANSTALLNING> persons)
+        public static async void SendDataToResultatenhetService(IList<Anstallning> persons)
         {
             
             var resList = new List<ResultatenhetInputDTO>();
             var db = new ApplicationDbContext();
 
             //var orgList = new List();
-            var slitList = Split<KSS_ANSTALLNING>(persons);
+            var slitList = Split<Anstallning>(persons);
 
             //To Start only get the org that the persons is using
             foreach (var sublist in slitList)
             {
 
-                var subOrganisationsList = (from fa in db.KSS_KOSTNADSSTALLE
-                                            where sublist.Contains(fa.PERSNR.Value)
-                                            orderby fa.KSTNR ascending
-                                            select new
-                                            {
-                                                fa.KSTNR,
-                                                fa.KSTTYP,
-                                                fa.ENAMN,
-                                                fa.FNAMN,
-                                                fa.UPPL_DATUM
-                                            }).ToList();
-
-                  resList.AddRange(from org in subOrganisationsList
+                var subOrganisationsList = LoadFromOracle.FindResultatenheter(sublist);
+                    
+                resList.AddRange(from org in subOrganisationsList
                                  where org.UPPL_DATUM != null
                                  select new ResultatenhetInputDTO()
                                  {
@@ -51,7 +45,7 @@ namespace LoadData
                                      systemId = $"DB{org.KSTNR}{org.KSTTYP}",
                                      uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
                                      uppdateradAv = "PSE",
-                                     skapadDatum = org.UPPL_DATUM.Value.ToString(DateTimeFormat),
+                                     skapadDatum = org.UPPL_DATUM.ToString(DateTimeFormat),
                                      skapadAv = "PSE"
                                  });
             }
@@ -72,10 +66,11 @@ namespace LoadData
             using (var client = new HttpClient())
             {
                 //var personInputDtos = personDTOList as IList<PersonInputDTO> ?? personDTOList.ToList();
+                var host = ConfigurationManager.AppSettings["ServiceHost"];
                 foreach (var p in resList)
                 {
                     var jsonInStringPerson = Newtonsoft.Json.JsonConvert.SerializeObject(p);
-                    var response = await client.PostAsync("http://localhost:57107/api/Organisation/resultatenhet",
+                    var response = await client.PostAsync( host + "/api/Organisation/resultatenhet",
                                                 new StringContent(jsonInStringPerson, Encoding.UTF8, "application/json"));
                 }
             }
@@ -89,14 +84,12 @@ namespace LoadData
             Console.WriteLine("End -- SendDataToResultatenhetService");
 
             var persNrList = persons.Select(p => p.PERSNR.ToString()).ToList();
-            LoadAvtal.SendDataToAvtalsService(persNrList);
+            SaveAvtal.AvtalsService(persNrList);
 
         }
 
 
-
-
-        public static List<List<long>> Split<T>(List<KSS_ANSTALLNING> source)
+        private static List<List<long>> Split<T>(IEnumerable<Anstallning> source)
         {
             return source
                 .Select((x, i) => new { Index = i, Value = x.PERSNR })

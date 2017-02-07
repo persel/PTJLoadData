@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System;
+using System.Diagnostics;
 
 namespace LoadData.Models
 {
@@ -15,6 +16,9 @@ namespace LoadData.Models
         public ApplicationDbContext()
             : base("DefaultConnection")
         {
+            #if DEBUG
+             Database.Log = s => Debug.WriteLine(s);
+            #endif
         }
 
         public virtual DbSet<KSS_ADRESS> KSS_ADRESS { get; set; }
@@ -22,7 +26,7 @@ namespace LoadData.Models
         public virtual DbSet<KSS_AFFOMR> KSS_AFFOMR { get; set; }
         public virtual DbSet<KSS_KONTAKT> KSS_KONTAKT { get; set; }
         public virtual DbSet<KSS_KOSTNADSSTALLE> KSS_KOSTNADSSTALLE { get; set; }
-        public virtual DbSet<KSS_ANSTALLNING> KSS_ANSTALLNING { get; set; }
+        public virtual DbSet<Anstallning> KSS_ANSTALLNING { get; set; }
 
 
         public static ApplicationDbContext Create()

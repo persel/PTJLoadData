@@ -1,6 +1,9 @@
 ﻿using LoadData.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -8,6 +11,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using LoadData.DTOModel;
 
 namespace LoadData
@@ -22,30 +26,23 @@ namespace LoadData
 
             Console.WriteLine("Start");
             
-            var db = new ApplicationDbContext();
-
-            var kstnrList = new List<int> { 165985, 400770, 338111 };
-            //Only take person with an org.. to start
-            var persons = (from fa in db.KSS_ANSTALLNING
-                           where fa.AKTIV == "J" //&& fa.ANSVARIG == "J"//kstnrList.Contains(fa.KSTNR) &&
-                           orderby fa.KSTNR descending 
-                           select fa).Take(5000).ToList();
-          
-            persons = persons.GroupBy(p => p.PERSNR).Select(grp => grp.First()).ToList();
-
+       
+            var persons = LoadFromOracle.FindAllActivePersons();
 
             //Start Person
-            LoadPerson.SendDataToPersonService(persons);
+            SavePerson.SendDataToPersonService(persons);
+           
+           
+           
 
-           // Thread.Sleep(3000);
-            //start org the when that is finish load all the Avtal..
-            
 
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();
          
         }
+
+       
 
 
      

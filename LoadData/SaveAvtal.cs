@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -10,20 +11,21 @@ using LoadData.Models;
 
 namespace LoadData
 {
-    static class LoadAvtal
+    static class SaveAvtal
     {
         private const string DateFormat = "yyyy-MM-dd";
         private const string DateTimeFormat = "yyyy-MM-dd HH:mm";
 
-        public static async void SendDataToAvtalsService(List<string> persNrList)
+        public static async void AvtalsService(List<string> persNrList)
         {
             var db = new ApplicationDbContext();
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            int antalAvtal = 0;
+            var antalAvtal = 0;
+            var host = ConfigurationManager.AppSettings["ServiceHost"];
             using (var client = new HttpClient())
             {
-                Console.WriteLine("Start -- SendDataToAvtalsService");
+                Console.WriteLine("Start -- AvtalsService");
                 foreach (var persNr in persNrList)
                 {
                     var myPersNr = long.Parse(persNr);
@@ -39,17 +41,10 @@ namespace LoadData
 
                     if (org.Count > 0)
                     {
-                        List<OrganisationAvtalInputDTO> orgAvtal = new List<OrganisationAvtalInputDTO>();
-                        foreach (var o in org)
+                        var orgAvtal = org.Select(o => new OrganisationAvtalInputDTO
                         {
-                            var _org = new OrganisationAvtalInputDTO
-                            {
-                                KostnadsstalleNr = o.KSTNR,
-                                Huvudkostnadsstalle = (o.KSTTYP == "H") ? true : false,
-                                ProcentuellFordelning = 100
-                            };
-                            orgAvtal.Add(_org);
-                        }
+                            KostnadsstalleNr = o.KSTNR, Huvudkostnadsstalle = (o.KSTTYP == "H") ? true : false, ProcentuellFordelning = 100
+                        }).ToList();
                         antalAvtal += minaAvtal.Count;
                         foreach (var avtal in minaAvtal)
                         {
@@ -92,7 +87,7 @@ namespace LoadData
 
                             var jsonInStringAvtal = Newtonsoft.Json.JsonConvert.SerializeObject(avtalToSave);
 
-                            var response = await client.PostAsync("http://localhost:57107/api/Person/avtal",
+                            var response = await client.PostAsync( host + "/api/Person/avtal",
                                 new StringContent(jsonInStringAvtal, Encoding.UTF8, "application/json"));
 
                         }
@@ -103,12 +98,11 @@ namespace LoadData
             stopWatch.Stop();
             var ts = stopWatch.Elapsed;
             string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-            Console.WriteLine("SendDataToAvtalsService");
+            Console.WriteLine("AvtalsService");
             Console.WriteLine("Time to save " + antalAvtal + " Avtal " + elapsedTime);
-            Console.WriteLine("End -- SendDataToAvtalsService");
+            Console.WriteLine("End -- AvtalsService");
 
-            
-
+           
         }
 
     }

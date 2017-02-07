@@ -7,7 +7,7 @@ namespace LoadData.Models
     using System.Data.Entity.Spatial;
 
     [Table("KSS_JAG.KSS_ANSTALLNING")]
-    public partial class KSS_ANSTALLNING
+    public partial class Anstallning
     {
         [Key]
         [Column(Order = 0)]
