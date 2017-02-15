@@ -16,72 +16,162 @@ namespace LoadData
         private const string DateFormat = "yyyy-MM-dd";
         private const string DateTimeFormat = "yyyy-MM-dd HH:mm";
 
-        public static async void PersonAdressService(IList<Anstallning> persons)
+        public static async void SendToOdlOrg(IList<dynamic> adressInputWorkDTOList)
         {
-            var resList = new List<AdressInputDTO>();
-            var host = ConfigurationManager.AppSettings["ServiceHost"];
-            Console.WriteLine("Start -- SaveAdress");
-            var slitList = Split<Anstallning>(persons);
+            await CallOdlService.Send(adressInputWorkDTOList, "/api/Adress/organisationadress");
+        }
 
-            //To Start only get the org that the persons is using
-            foreach (var sublist in slitList)
+        public static async void SendToOdlPerson(IList<dynamic> adressInputWorkDTOList)
+        {
+            await CallOdlService.Send(adressInputWorkDTOList, "/api/Adress/personadress");
+        }
+
+        public static List<dynamic> CreatListOHomeAdressPersonInputDTO(List<dynamic> adresssListHome)
+        {
+            var resListAdress = new List<dynamic>();
+            foreach (var adress in adresssListHome)
             {
-                var subAdresssList = LoadFromOracle.FindAdress(sublist);
 
-                foreach (var adress in subAdresssList)
+                var ad = new AdressInputDTO()
                 {
-                    int postnr;
-                    int.TryParse(adress.POSTNR, out postnr);
-                    var ad = new AdressInputDTO()
+                    Personnummer = adress.ID.ToString(),
+                    AdressVariant = "Folkbokföringsadress", //Hem adress
+                    GatuadressInput =
+                        new GatuadressInputDTO()
+                        {
+                            AdressRad1 = adress.GADR,
+                            Postnummer = adress.POSTNR,
+                            Stad = adress.ORT
+                        },
+                    systemId = $"DB{adress.KSTNR}{adress.KSTTYP}",
+                    uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
+                    uppdateradAv = "PSE",
+                    skapadDatum = DateTime.Now.ToString(DateTimeFormat),
+                    skapadAv = "PSE"
+                };
+                resListAdress.Add(ad);
+
+                var adTel = new AdressInputDTO()
+                {
+                    Personnummer = adress.ID.ToString(),
+                    AdressVariant = "Telefon Privat", //Hem adress
+                    TelefonInput = new TelefonInputDTO() {Telefonnummer = adress.TELNR},
+                    systemId = $"DB{adress.KSTNR}{adress.KSTTYP}",
+                    uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
+                    uppdateradAv = "PSE",
+                    skapadDatum = DateTime.Now.ToString(DateTimeFormat),
+                    skapadAv = "PSE"
+                };
+                resListAdress.Add(adTel);
+
+                var adMail = new AdressInputDTO()
+                {
+                    Personnummer = adress.ID.ToString(),
+                    AdressVariant = "Mailadress Privat", //Hem adress
+                    MailInput = new MailInputDTO() {MailAdress = adress.EMAIL},
+                    systemId = $"DB{adress.KSTNR}{adress.KSTTYP}",
+                    uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
+                    uppdateradAv = "PSE",
+                    skapadDatum = DateTime.Now.ToString(DateTimeFormat),
+                    skapadAv = "PSE"
+                };
+                resListAdress.Add(adMail);
+            }
+
+
+            return resListAdress;
+        }
+
+        public static List<dynamic> CreatListOfWorkAdressPersonInputDTO(List<dynamic> adresssListWork)
+        {
+            var resListAdress = new List<dynamic>();
+            //var resListWorkAdress = new List<dynamic>();
+
+            foreach (var adressWork in adresssListWork)
+            {
+                
+                //var resWorkAdress = LoadFromOracle.FindResultatEnhetAdress(adressWork.ID);
+                var workPhone = LoadFromOracle.FindWorkPhone(adressWork.ID);
+
+                var adW = new AdressInputDTO()
+                {
+                    Personnummer = adressWork.PERSNR.ToString(),
+                    // AdressVariant = "Adress Arbete", //Arbete adress
+                    GatuadressInput =
+                        new GatuadressInputDTO()
+                        {
+                            AdressRad1 = adressWork.GADR,
+                            Postnummer = adressWork.POSTNR,
+                            Stad = adressWork.ORT
+                        },
+                    systemId = $"DB{adressWork.KSTNR}{adressWork.KSTTYP}",
+                    uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
+                    uppdateradAv = "PSE",
+                    skapadDatum = DateTime.Now.ToString(DateTimeFormat),
+                    skapadAv = "PSE",
+                    AdressVariant = adressWork.ADRTYP == "U" ? "Adress Arbete" : "LeveransAdress"
+                };
+                resListAdress.Add(adW);
+
+                foreach (var phone in workPhone)
+                {
+                    var adTel = new AdressInputDTO
                     {
-                        Personnummer = adress.PERSNR.ToString(),
-                        AdressVariant = "1", //Hem adress
-                        GatuadressInput =
-                            new GatuadressInputDTO()
-                            {
-                                AdressRad1 = adress.BOSTADR,
-                                Postnummer = postnr,
-                                Stad = adress.PADR
-                            },
-                        TelefonInput = new TelefonInputDTO() {Telefonnummer = ""},
-                        MailInput = new MailInputDTO() {MailAdress = ""},
-                        systemId = $"DB{adress.KSTNR}{adress.KSTTYP}",
+                        Personnummer = adressWork.PERSNR.ToString(),
+                        TelefonInput = new TelefonInputDTO() {Telefonnummer = phone.TELNR},
+                        systemId = $"DB{phone.KSTNR}{phone.KSTNRKSTTYP}",
                         uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
                         uppdateradAv = "PSE",
                         skapadDatum = DateTime.Now.ToString(DateTimeFormat),
-                        skapadAv = "PSE"
+                        skapadAv = "PSE",
+                        AdressVariant = phone.TELTYP == 10 ? "Telefon Arbete" : "Mobil Arbete"
                     };
+                    resListAdress.Add(adTel);
                 }
             }
 
-            resList = resList.GroupBy(o => o.Personnummer).Select(grp => grp.First()).ToList();
 
+            return resListAdress;
 
-            //Save resultatenhet
-            //http://localhost:57107/api/Adress/personadress
-
-            using (var client = new HttpClient())
-            {
-                //var personInputDtos = personDTOList as IList<PersonInputDTO> ?? personDTOList.ToList();
-                foreach (var p in resList)
-                {
-                    var jsonInStringPerson = Newtonsoft.Json.JsonConvert.SerializeObject(p);
-                    var response = await client.PostAsync(host + "/api/Adress/personadress",
-                        new StringContent(jsonInStringPerson, Encoding.UTF8, "application/json"));
-                }
-            }
-
-            Console.WriteLine("END -- SaveAdress");
         }
 
-
-        private static List<List<long>> Split<T>(IEnumerable<Anstallning> source)
+        public static List<dynamic> CreatListOfAdressResultatEnheterInputDTO(IEnumerable<dynamic> adresssListResultatEnheter)
         {
-            return source
-                .Select((x, i) => new { Index = i, Value = x.PERSNR })
-                .GroupBy(x => x.Index / 900)
-                .Select(x => x.Select(v => v.Value).ToList())
-                .ToList();
+            var resListAdress = new List<dynamic>();
+            foreach (var adressWork in adresssListResultatEnheter)
+            {
+                var w = new AdressOrgInputDTO
+                {
+                    KostnadsstalleNr = adressWork.KSTNR.ToString(),
+                    GatuadressInput =
+                        new GatuadressInputDTO()
+                        {
+                            AdressRad1 = adressWork.GADR,
+                            Postnummer = adressWork.POSTNR,
+                            Stad = adressWork.ORT
+                        },
+                    systemId = $"DB{adressWork.KSTNR}{adressWork.KSTTYP}",
+                    uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
+                    uppdateradAv = "PSE",
+                    skapadDatum = DateTime.Now.ToString(DateTimeFormat),
+                    skapadAv = "PSE",
+                    //AdressVariant = adressWork.ADRTYP == "U" ? "LeveransAdress" : "FaktureringsAdress"
+                };
+
+                if (adressWork.ADRTYP == "U")
+                {
+                    w.AdressVariant = "LeveransAdress";
+                }
+                if (adressWork.ADRTYP == "B")
+                {
+                    w.AdressVariant = "FaktureringsAdress";
+                }
+                //Console.WriteLine(w.AdressVariant + " " + w.KostnadsstalleNr);
+                resListAdress.Add(w);
+            }
+
+            return resListAdress;
+
         }
     }
 }

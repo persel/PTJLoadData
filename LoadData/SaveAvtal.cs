@@ -16,7 +16,7 @@ namespace LoadData
         private const string DateFormat = "yyyy-MM-dd";
         private const string DateTimeFormat = "yyyy-MM-dd HH:mm";
 
-        public static async void AvtalsService(List<string> persNrList)
+        public static async void AvtalsService(IEnumerable<long> persNrList, IEnumerable<long> kstnrList)
         {
             var db = new ApplicationDbContext();
             var stopWatch = new Stopwatch();
@@ -28,7 +28,7 @@ namespace LoadData
                 Console.WriteLine("Start -- AvtalsService");
                 foreach (var persNr in persNrList)
                 {
-                    var myPersNr = long.Parse(persNr);
+                    var myPersNr = persNr;
                     var minaAvtal = (from fa in db.KSS_ANSTALLNING
                                where fa.PERSNR == myPersNr
                                      orderby fa.KSTNR ascending
@@ -38,8 +38,11 @@ namespace LoadData
                                where k.PERSNR.Value == myPersNr
                                orderby k.KSTNR ascending
                                select new {k.KSTNR , k.KSTTYP} ).ToList();
-
-                    if (org.Count > 0)
+                    //Why this? 
+                    //becouse that some org do not make it in to the ODL (validation rules = bad data) and then do yo get error when you import Avtal there the org do not exist..
+                    kstnrList = kstnrList as List<long>;
+                    var org2 = org.Select(o => o.KSTNR).ToList();
+                    if (org.Count > 0 && kstnrList.Contains(org2[0]) )
                     {
                         var orgAvtal = org.Select(o => new OrganisationAvtalInputDTO
                         {

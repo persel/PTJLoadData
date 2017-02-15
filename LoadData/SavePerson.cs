@@ -1,23 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
+using System.Threading.Tasks;
 using LoadData.DTOModel;
 using LoadData.Models;
 
 namespace LoadData
 {
-    static class SavePerson
+    public static class SavePerson
     {
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm";
 
-        public const string DateFormat = "yyyy-MM-dd";
-        public const string DateTimeFormat = "yyyy-MM-dd HH:mm";
-
-        public static async void SendDataToPersonService(IList<Anstallning> persons)
+        public static async Task SendDataToPersonService(IList<Anstallning> persons)
         {
             var stopWatch = new Stopwatch();
 
@@ -34,30 +29,12 @@ namespace LoadData
                 skapadDatum = DateTime.Now.ToString(DateTimeFormat),
                 skapadAv = "PSE"
             }).ToList();
+            Console.WriteLine("Start -- SendDataToPersonService");
 
             stopWatch.Start();
-            Console.WriteLine("Start -- SendDataToPersonService");
-            //Save person
-            //http://localhost:57107//api/Person/person
 
-            using (var client = new HttpClient())
-            {
-                var personInputDtos = personDTOList as IList<PersonInputDTO> ?? personDTOList.ToList();
-                foreach (var p in personInputDtos)
-                {
-                    var jsonInStringPerson = Newtonsoft.Json.JsonConvert.SerializeObject(p);
-                    var host = ConfigurationManager.AppSettings["ServiceHost"];
-                    var response = await client.PostAsync( host + "/api/Person/person",
-                                                new StringContent(jsonInStringPerson, Encoding.UTF8, "application/json"));
-
-                    if (response.StatusCode.ToString() != "500")
-                    {
-                    
-                    }
-                }
-            }
-
-            stopWatch.Stop();
+            await CallOdlService.Send(personDTOList, "/api/Person/person");
+            
 
 
 
@@ -68,10 +45,7 @@ namespace LoadData
             Console.WriteLine("Time to save " + personDTOList.ToList().Count() + " persons " + elapsedTime);
             Console.WriteLine("End -- SendDataToPersonService");
 
-            SaveAdress.PersonAdressService(persons);
-
-            SaveResultatenhet.SendDataToResultatenhetService(persons);
-
+            stopWatch.Stop();
         }
 
      

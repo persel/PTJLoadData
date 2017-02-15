@@ -26,6 +26,28 @@ namespace LoadData.DTOModel
 
     }
 
+
+    class AdressOrgInputDTO
+    {
+        public string KostnadsstalleNr { get; set; }
+        public string Personnummer { get; set; }
+        public string AdressVariant { get; set; }
+        public GatuadressInputDTO GatuadressInput { get; set; }
+        public MailInputDTO MailInput { get; set; }
+        public TelefonInputDTO TelefonInput { get; set; }
+
+        public string systemId { get; set; }
+
+        public string uppdateradDatum { get; set; }
+
+        public string uppdateradAv { get; set; }
+
+        public string skapadDatum { get; set; }
+
+        public string skapadAv { get; set; }
+
+    }
+
     public class TelefonInputDTO
     {
         public string Telefonnummer { get; set; }
