@@ -19,7 +19,7 @@ namespace LoadData
                 return db2.Query<Anstallning>(@"Select * 
                         From KSS_ANSTALLNING
                         WHERE AKTIV =:AKTIV 
-                        and ROWNUM <=:Limit ", new { AKTIV = "J", Limit = 4 }).ToList();
+                        and ROWNUM <=:Limit ", new { AKTIV = "J", Limit = 100 }).ToList();
 
             }
         }
