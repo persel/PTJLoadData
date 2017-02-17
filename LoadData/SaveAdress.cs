@@ -54,7 +54,7 @@ namespace LoadData
                 var adTel = new AdressInputDTO()
                 {
                     Personnummer = adress.ID.ToString(),
-                    AdressVariant = "Telefon Privat", //Hem adress
+                    AdressVariant = "Telefon Privat",
                     TelefonInput = new TelefonInputDTO() {Telefonnummer = adress.TELNR},
                     systemId = $"DB{adress.KSTNR}{adress.KSTTYP}",
                     uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
@@ -67,7 +67,7 @@ namespace LoadData
                 var adMail = new AdressInputDTO()
                 {
                     Personnummer = adress.ID.ToString(),
-                    AdressVariant = "Mailadress Privat", //Hem adress
+                    AdressVariant = "Mailadress Privat",
                     MailInput = new MailInputDTO() {MailAdress = adress.EMAIL},
                     systemId = $"DB{adress.KSTNR}{adress.KSTTYP}",
                     uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
@@ -85,18 +85,15 @@ namespace LoadData
         public static List<dynamic> CreatListOfWorkAdressPersonInputDTO(List<dynamic> adresssListWork)
         {
             var resListAdress = new List<dynamic>();
-            //var resListWorkAdress = new List<dynamic>();
-
+           
             foreach (var adressWork in adresssListWork)
             {
                 
-                //var resWorkAdress = LoadFromOracle.FindResultatEnhetAdress(adressWork.ID);
                 var workPhone = LoadFromOracle.FindWorkPhone(adressWork.ID);
 
                 var adW = new AdressInputDTO()
                 {
                     Personnummer = adressWork.PERSNR.ToString(),
-                    // AdressVariant = "Adress Arbete", //Arbete adress
                     GatuadressInput =
                         new GatuadressInputDTO()
                         {
@@ -154,8 +151,7 @@ namespace LoadData
                     uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
                     uppdateradAv = "PSE",
                     skapadDatum = DateTime.Now.ToString(DateTimeFormat),
-                    skapadAv = "PSE",
-                    //AdressVariant = adressWork.ADRTYP == "U" ? "LeveransAdress" : "FaktureringsAdress"
+                    skapadAv = "PSE"
                 };
 
                 if (adressWork.ADRTYP == "U")
@@ -166,7 +162,7 @@ namespace LoadData
                 {
                     w.AdressVariant = "FaktureringsAdress";
                 }
-                //Console.WriteLine(w.AdressVariant + " " + w.KostnadsstalleNr);
+                
                 resListAdress.Add(w);
             }
 

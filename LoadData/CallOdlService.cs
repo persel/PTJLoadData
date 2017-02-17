@@ -18,8 +18,7 @@ namespace LoadData
             var host = ConfigurationManager.AppSettings["ServiceHost"];
             using (var client = new HttpClient())
             {
-               
-                    //var personInputDtos = list as IList<dynamic> ?? list.ToList();
+             
                     foreach (var p in listOfObjects)
                     {
                         var jsonInStringPerson = Newtonsoft.Json.JsonConvert.SerializeObject(p);

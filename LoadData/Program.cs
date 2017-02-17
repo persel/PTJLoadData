@@ -26,10 +26,18 @@ namespace LoadData
 
 
             Console.WriteLine("Start");
-
+            var kstnrList = new List<long>();
             //Start Load is based on all active persons/user or how many you chose to load.
             var persons = LoadFromOracle.FindAllActivePersons();
-            var kstnrList = new List<long>();
+            Console.WriteLine("Start -- Personer " + persons.Count);
+            
+            kstnrList.AddRange(persons.Select(org => org.KSTNR).Cast<long>());
+            Console.WriteLine("Start -- kstnrList " + kstnrList.Count);
+            kstnrList = kstnrList.GroupBy(x => x).Select(g => g .First()).ToList();
+            Console.WriteLine("After distinct -- kstnrList " + kstnrList.Count);
+
+            persons = persons.GroupBy(x => x.PERSNR).Select(g => g.First()).ToList();
+            Console.WriteLine("After distinct -- Personer " + persons.Count);
             //Tmp solution to avoid oracle limitaions max 999 items IN conditions..
             var persNrSubLists = Split<long>(persons);
 
@@ -39,11 +47,12 @@ namespace LoadData
                 task.Wait();
                 foreach (var sublist in persNrSubLists)
                 {
+
                     var subAdresssListHome = LoadFromOracle.FindHomeAdressPerson(sublist) as List<dynamic>;
                     var subAdresssListWork = LoadFromOracle.FindWorkAdressPerson(sublist) as List<dynamic>;
 
-                    if (subAdresssListWork != null)
-                        kstnrList.AddRange(subAdresssListWork.Select(org => org.ID).Cast<long>());
+                    //if (subAdresssListWork != null)
+                    //    kstnrList.AddRange(subAdresssListWork.Select(org => org.ID).Cast<long>());
 
                     var adressInputHomeDTOList = SaveAdress.CreatListOHomeAdressPersonInputDTO(subAdresssListHome);
                     var adressInputWorkDTOList = SaveAdress.CreatListOfWorkAdressPersonInputDTO(subAdresssListWork);
@@ -62,9 +71,21 @@ namespace LoadData
                             SaveAdress.SendToOdlOrg(adressInputOrgDTOList);
                         }
 
-                        SaveAvtal.AvtalsService(sublist, kstnrList);
+
                     });
+
+                    SaveAvtal.AvtalsService(sublist, kstnrList);
+
+
+
                 }
+
+                //var kstnrNrSubLists = Split<long>(kstnrList);
+                //foreach (var subkstnrList in kstnrNrSubLists)
+                //{
+
+
+                //}
 
             });
 
@@ -86,7 +107,16 @@ namespace LoadData
         {
             return source
                 .Select((x, i) => new { Index = i, Value = x.PERSNR })
-                .GroupBy(x => x.Index / 900)
+                .GroupBy(x => x.Index / 998)
+                .Select(x => x.Select(v => v.Value).ToList())
+                .ToList();
+        }
+
+        private static List<List<long>> Split<T>(IEnumerable<long> source)
+        {
+            return source
+                .Select((x, i) => new { Index = i, Value = x })
+                .GroupBy(x => x.Index / 998)
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
         }
