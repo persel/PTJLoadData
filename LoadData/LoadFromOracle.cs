@@ -20,9 +20,10 @@ namespace LoadData
                         From KSS_ANSTALLNING anst
                         left join KSS_KOSTNADSSTALLE kstn
                         on anst.PERSNR = kstn.PERSNR
-                        WHERE anst.AVGDAT is null
-                        or  anst.AVGDAT > sysdate
-                        and ROWNUM <=:Limit ", new { AKTIV = "J", Limit = 50 }).ToList();
+                        WHERE (anst.AVGDAT is null
+                        or  anst.AVGDAT > sysdate)
+                        and kstn.KSTNR > 100000 
+                        and ROWNUM <=:Limit ", new { Limit = 50 }).ToList();
 
             }
         }

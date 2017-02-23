@@ -30,8 +30,10 @@ namespace LoadData
             //Start Load is based on all active persons/user or how many you chose to load.
             var persons = LoadFromOracle.FindAllActivePersons();
             Console.WriteLine("Start -- Personer " + persons.Count);
-            
-            kstnrList.AddRange(persons.Select(org => org.KSTNR).Cast<long>());
+
+            var numbers = Enumerable.Range(1, 9999).Select(i => (long)i).ToList();
+
+            kstnrList.AddRange(persons.Select(org => org.KSTNR).Select(i => (long)i));
             Console.WriteLine("Start -- kstnrList " + kstnrList.Count);
             kstnrList = kstnrList.GroupBy(x => x).Select(g => g .First()).ToList();
             Console.WriteLine("After distinct -- kstnrList " + kstnrList.Count);
@@ -74,7 +76,8 @@ namespace LoadData
 
                     });
 
-                    SaveAvtal.AvtalsService(sublist, kstnrList);
+                    //TODO - mah
+                    //SaveAvtal.AvtalsService(sublist, kstnrList);
 
 
 

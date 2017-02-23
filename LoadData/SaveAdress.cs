@@ -149,20 +149,28 @@ namespace LoadData
                         },
                     systemId = $"DB{adressWork.KSTNR}{adressWork.KSTTYP}",
                     uppdateradDatum = DateTime.Now.ToString(DateTimeFormat),
-                    uppdateradAv = "PSE",
+                    uppdateradAv = "MAH",
                     skapadDatum = DateTime.Now.ToString(DateTimeFormat),
-                    skapadAv = "PSE"
+                    skapadAv = "MAH"
                 };
 
-                if (adressWork.ADRTYP == "U")
+                if (adressWork.ADRTYP == "L")
                 {
                     w.AdressVariant = "LeveransAdress";
                 }
-                if (adressWork.ADRTYP == "B")
+                else if (adressWork.ADRTYP == "U")
                 {
                     w.AdressVariant = "FaktureringsAdress";
                 }
-                
+                else if (adressWork.ADRTYP == "H" )
+                {
+                    w.AdressVariant = "Folkbokföringsadress";
+                }
+                else if (adressWork.ADRTYP == "B")
+                {
+                    w.AdressVariant = "Folkbokföringsadress";
+                }
+
                 resListAdress.Add(w);
             }
 
